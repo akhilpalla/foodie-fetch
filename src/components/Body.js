@@ -13,11 +13,18 @@ const Body = () => {
     fetchData();
   }, []);
 
-  const fetchData = () => {
-    setTimeout(() => {
-      setListOfRestaurants(resList);
-      setFilterRestaurants(resList);
-    }, 2000);
+  const fetchData = async () => {
+    const data = await fetch(
+      "https://www.swiggy.com/dapi/restaurants/list/v5?lat=12.9351929&lng=77.62448069999999&page_type=DESKTOP_WEB_LISTING"
+    );
+    const json = await data.json();
+
+    setListOfRestaurants(
+      json?.data?.cards[4]?.card?.card?.gridElements?.infoWithStyle?.restaurants
+    );
+    setFilterRestaurants(
+      json?.data?.cards[4]?.card?.card?.gridElements?.infoWithStyle?.restaurants
+    );
   };
 
   return listOfRestaurants.length === 0 ? (
@@ -37,7 +44,7 @@ const Body = () => {
           <button
             onClick={() => {
               const filteredRestaurants = listOfRestaurants.filter((res) => {
-                return res.data.name
+                return res.info.name
                   .toLowerCase()
                   .includes(searchText.toLowerCase());
               });
@@ -51,9 +58,9 @@ const Body = () => {
           className="filter-btn"
           onClick={() => {
             const filteredList = listOfRestaurants.filter(
-              (res) => res.data.avgRating > 4
+              (res) => res.info.avgRating > 4.2
             );
-            setListOfRestaurants(filteredList);
+            setFilterRestaurants(filteredList);
           }}
         >
           Top Rated Restaurants
@@ -61,7 +68,7 @@ const Body = () => {
       </div>
       <div className="res-container">
         {filterRestaurants.map((restaurant) => (
-          <RestaurantCard key={restaurant.data.id} resData={restaurant} />
+          <RestaurantCard key={restaurant.info.id} resData={restaurant} />
         ))}
       </div>
     </div>
